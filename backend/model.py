@@ -5,6 +5,7 @@ from datetime import datetime
 from contextlib import contextmanager
 import threading
 import sqlite3
+from pathlib import Path
 
 
 class TransactionManager:
@@ -71,6 +72,24 @@ class Video:
         self.created_at = created_at
         self.video_url = video_url
         self.video_type = video_type
+
+    @staticmethod
+    def init_table() -> None:
+        sql = """
+            CREATE TABLE videolist(
+                tweet_id INTEGER PRIMARY KEY,
+                author_name TEXT,
+                author_screen_name TEXT,
+                author_thumbnail_url TEXT,
+                retweeted_author_name TEXT,
+                retweeted_author_screen_name TEXT,
+                body TEXT,
+                created_at INTEGER,
+                video_url TEXT,
+                video_type INTEGER)
+        """
+        con = TransactionManager.get_connection()
+        con.execute(sql)
 
     @staticmethod
     def from_row(row: sqlite3.Row) -> "Video":
@@ -259,6 +278,14 @@ class Video:
 
 
 class Config:
+    @staticmethod
+    def init_table() -> None:
+        sql = """
+            CREATE TABLE config(key TEXT PRIMARY KEY, value TEXT)
+        """
+        con = TransactionManager.get_connection()
+        con.execute(sql)
+
     @staticmethod
     def insert(key: str, value: str) -> None:
         sql = """
