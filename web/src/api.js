@@ -1,7 +1,7 @@
 
 export class API {
   constructor() {
-    this.endpoint = "http://localhost:5000";
+    this.endpoint = "";
   }
 
   getVideoList(sinceId=null, untilId=null, count=null) {
