@@ -224,58 +224,6 @@ class Video:
         cursor = con.execute(sql, placeholders)
         return reversed([Video.from_row(row) for row in cursor])
 
-    @staticmethod
-    def select(
-            since_id: int = None,
-            until_id: int = None,
-            count: int = None) -> List["Video"]:
-
-        sql = """
-            SELECT
-                tweet_id,
-                author_name,
-                author_screen_name,
-                author_thumbnail_url,
-                retweeted_author_name,
-                retweeted_author_screen_name,
-                body,
-                created_at,
-                video_url,
-                video_type
-            FROM videolist
-            {where_clause}
-            ORDER BY tweet_id ASC
-            {limit_clause}
-        """
-
-        where_clauses = []
-        placeholders = []
-        if since_id is not None:
-            where_clauses.append("? <= tweet_id")
-            placeholders.append(since_id)
-
-        if until_id is not None:
-            where_clauses.append("tweet_id <= ?")
-            placeholders.append(until_id)
-
-        if count is not None:
-            placeholders.append(count)
-
-        format_dict = {
-            "where_clause": "",
-            "limit_clause": ""
-        }
-        if 0 < len(where_clauses):
-            format_dict["where_clause"] = "WHERE " + " AND ".join(where_clauses)
-        if count is not None:
-            format_dict["limit_clause"] = "LIMIT ?"
-
-        sql = sql.format(**format_dict)
-
-        con = TransactionManager.get_connection()
-        cursor = con.execute(sql, placeholders)
-        return [Video.from_row(row) for row in cursor]
-
 
 class Config:
     @staticmethod
