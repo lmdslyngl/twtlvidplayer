@@ -12,13 +12,6 @@ app = flask.Flask(
     static_url_path="")
 
 
-@app.after_request
-def cors_header_for_debug(response):
-    if app.debug:
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:8080")
-    return response
-
-
 @app.route("/api/videolist-until", methods=["GET"])
 def videolist_until():
     select_params = {}
