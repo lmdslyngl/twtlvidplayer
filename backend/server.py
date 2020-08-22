@@ -2,15 +2,20 @@
 import json
 from functools import wraps
 import flask
+import waitress
 from model import TransactionManager, Video, VideoType, Config
 
 
-app = flask.Flask(__name__)
+app = flask.Flask(
+    __name__,
+    static_folder="./web",
+    static_url_path="")
 
 
 @app.after_request
 def cors_header_for_debug(response):
-    response.headers.add("Access-Control-Allow-Origin", "http://localhost:8080")
+    if app.debug:
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:8080")
     return response
 
 
@@ -68,4 +73,5 @@ def config(key):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    # app.run(host="0.0.0.0", debug=True)
+    waitress.serve(app, host="0.0.0.0", port=5000)
