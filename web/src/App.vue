@@ -54,7 +54,7 @@ export default {
       .then((response) => {
         lastPlayingVideoId = response["value"];
       }).then(() => {
-        return api.getVideoListSince(lastPlayingVideoId, 10);
+        return api.getVideoListSince(lastPlayingVideoId, 20);
       }).then((response) => {
         Store.setVideoList(response);
 
