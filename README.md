@@ -4,4 +4,4 @@
 ## 動かし方
 1. docker/data/token_template.jsonにTwitterトークンを設定し，token.jsonにリネーム
 2. ``` # docker-compose up -d ```
-3. ``` http://{立てたサーバ}:5050/index.html ```にアクセス
+3. ``` http://{立てたサーバ}:5000/index.html ```にアクセス
