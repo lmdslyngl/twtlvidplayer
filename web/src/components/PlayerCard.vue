@@ -25,7 +25,7 @@
               (@{{ playingVideoTweet["author_screen_name"] }})
             </p>
             <p>{{ playingVideoTweet["body"] }}</p>
-            <a href="#" target="_blank">Twitterで開く</a>
+            <a v-bind:href="tweetUrl" target="_blank">Twitterで開く</a>
           </div>
         </div>
       </div>
@@ -82,6 +82,13 @@ export default {
   methods: {
     onVideoEnded: function() {
       Store.nextVideo();
+    }
+  },
+  computed: {
+    tweetUrl: function() {
+      return "https://twitter.com/" +
+        this.playingVideoTweet["author_screen_name"] + "/status/" +
+        this.playingVideoTweet["tweet_id"];
     }
   }
 }
