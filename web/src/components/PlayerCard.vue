@@ -20,6 +20,11 @@
             <img v-bind:src="playingVideoTweet['author_thumbnail_url']">
           </div>
           <div>
+            <p
+                class="retweeted-author"
+                v-show="playingVideoTweet['retweeted_author_name'] !== null">
+              {{ playingVideoTweet["retweeted_author_name"] }} がリツイート
+            </p>
             <p class="author">
               {{ playingVideoTweet["author_name"] }}
               (@{{ playingVideoTweet["author_screen_name"] }})
@@ -52,6 +57,12 @@
 
 .tweet-card-grid p {
   margin: 0 0 5px 0;
+}
+
+.tweet-card-grid .retweeted-author{
+  font-size: 80%;
+  color: rgb(150, 150, 150);
+  margin: 0;
 }
 
 .tweet-card-grid .author {
