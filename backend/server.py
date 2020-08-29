@@ -12,6 +12,11 @@ app = flask.Flask(
     static_url_path="")
 
 
+@app.route("/", methods=["GET"])
+def root():
+    return flask.send_from_directory("./web", "index.html")
+
+
 @app.route("/api/videolist-until", methods=["GET"])
 def videolist_until():
     select_params = {}
