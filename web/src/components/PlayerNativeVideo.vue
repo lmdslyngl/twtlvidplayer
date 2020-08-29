@@ -4,6 +4,7 @@
       v-bind:src="videoUrl"
       v-on:loadeddata="onPlayable"
       v-on:ended="onEnded"
+      v-on:error="onError"
       playsinline controls />
   </div>
 </template>
@@ -33,6 +34,9 @@ export default {
       videoElem.play();
     },
     onEnded: function() {
+      this.$emit("ended");
+    },
+    onError: function() {
       this.$emit("ended");
     }
   }
