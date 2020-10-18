@@ -4,6 +4,7 @@ from functools import wraps
 import flask
 import waitress
 from model import TransactionManager, Video, VideoType, Config
+from filter_plugins.executor import FilterPluginExecutor
 
 
 app = flask.Flask(
@@ -27,6 +28,7 @@ def videolist_until():
 
     videos = Video.select_until(**select_params)
     videos_dict = [video.to_dict() for video in videos]
+    videos_dict = FilterPluginExecutor.get_instance()(videos_dict)
     return flask.Response(response=json.dumps(videos_dict))
 
 
@@ -40,6 +42,7 @@ def videolist_since():
 
     videos = Video.select_since(**select_params)
     videos_dict = [video.to_dict() for video in videos]
+    videos_dict = FilterPluginExecutor.get_instance()(videos_dict)
     return flask.Response(response=json.dumps(videos_dict))
 
 
