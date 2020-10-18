@@ -2,8 +2,9 @@
 import sys
 import json
 from functools import lru_cache
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
+from typing import Any, Callable
 
 
 def init_logger() -> None:
@@ -28,3 +29,23 @@ def load_config() -> dict:
 
 def twitter_date_to_datetime(date_str: str) -> datetime:
     return datetime.strptime(date_str, "%a %b %d %H:%M:%S +0000 %Y")
+
+
+class TimedCachedFuncWrapper:
+    def __init__(self, func, expire_duration=timedelta(seconds=10)):
+        self.func = func
+        self.expire_duration = expire_duration
+        self.cache = {}
+
+    def __call__(self, *args, **kwargs):
+        cache_key = (*args, *tuple(kwargs.items()))
+        try:
+            cached_value, cached_timestamp = self.cache[cache_key]
+            if self.expire_duration < datetime.now() - cached_timestamp:
+                raise KeyError("Cache expired")
+            return cached_value
+
+        except KeyError:
+            ret = self.func(*args, **kwargs)
+            self.cache[cache_key] = (ret, datetime.now())
+            return ret

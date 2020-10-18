@@ -102,6 +102,39 @@ def get_home_timeline(
     return r.json()
 
 
+@RateLimitWrapper.wrap("get_lists")
+def get_lists() -> List[dict]:
+    url = "https://api.twitter.com/1.1/lists/list.json"
+    r = requests.get(url, auth=__get_auth())
+
+    if r.status_code == 429:
+        raise TwAPIRateLimited.create_from_response(r)
+    elif r.status_code != 200:
+        raise TwAPIException(r.text)
+
+    return r.json()
+
+
+@RateLimitWrapper.wrap("get_list_members")
+def get_list_members(list_id: str) -> List[dict]:
+    url = "https://api.twitter.com/1.1/lists/members.json"
+
+    params = {
+        "list_id": list_id,
+        "count": 5000,
+        "include_entities": False,
+        "skip_status": True
+    }
+    r = requests.get(url, params=params, auth=__get_auth())
+
+    if r.status_code == 429:
+        raise TwAPIRateLimited.create_from_response(r)
+    elif r.status_code != 200:
+        raise TwAPIException(r.text)
+
+    return r.json()["users"]
+
+
 def main():
     import pprint
 
