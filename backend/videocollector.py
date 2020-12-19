@@ -7,7 +7,7 @@ from logging import getLogger
 import time
 
 from twapi import get_home_timeline
-from model import TransactionManager, Video, VideoType
+from model import TransactionManager, Video, VideoType, User
 from util import twitter_date_to_datetime, init_logger
 
 
@@ -40,25 +40,39 @@ def extract_video_tweets(twapi_search_response: dict) -> List[Video]:
         if "retweeted_status" in tweet:
             # RTだった場合はRT元のツイートから情報を取得する
             rt = tweet["retweeted_status"]
+
+            author = User(
+                user_id=rt["user"]["id"],
+                name=rt["user"]["name"],
+                screen_name=rt["user"]["screen_name"],
+                thumbnail_url=rt["user"]["profile_image_url_https"])
+
+            retweeter = User(
+                user_id=tweet["user"]["id"],
+                name=tweet["user"]["name"],
+                screen_name=tweet["user"]["screen_name"],
+                thumbnail_url=tweet["user"]["profile_image_url_https"])
+
             vid = Video(
                 tweet_id=tweet["id"],
-                author_name=rt["user"]["name"],
-                author_screen_name=rt["user"]["screen_name"],
-                author_thumbnail_url=rt["user"]["profile_image_url_https"],
-                retweeted_author_name=tweet["user"]["name"],
-                retweeted_author_screen_name=tweet["user"]["screen_name"],
+                author=author,
+                retweeted_user=retweeter,
                 body=rt["full_text"],
                 created_at=twitter_date_to_datetime(tweet["created_at"]),
                 video_url=selected_video_url,
                 video_type=video_type)
+
         else:
+            author = User(
+                user_id=tweet["user"]["id"],
+                name=tweet["user"]["name"],
+                screen_name=tweet["user"]["screen_name"],
+                thumbnail_url=tweet["user"]["profile_image_url_https"])
+
             vid = Video(
                 tweet_id=tweet["id"],
-                author_name=tweet["user"]["name"],
-                author_screen_name=tweet["user"]["screen_name"],
-                author_thumbnail_url=tweet["user"]["profile_image_url_https"],
-                retweeted_author_name=None,
-                retweeted_author_screen_name=None,
+                author=author,
+                retweeted_user=None,
                 body=tweet["full_text"],
                 created_at=twitter_date_to_datetime(tweet["created_at"]),
                 video_url=selected_video_url,
