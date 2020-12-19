@@ -1,10 +1,11 @@
 
 import sys
-from model import Video, Config, TransactionManager
+from model import Video, User, Config, TransactionManager
 
 
 def main():
     with TransactionManager.transaction():
+        User.init_table()
         Video.init_table()
         Config.init_table()
 
