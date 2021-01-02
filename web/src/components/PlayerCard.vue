@@ -1,15 +1,16 @@
 <template>
   <div
       class="player-area-inner"
-      v-if="playingVideoTweet !== null">
+      v-if="sharedState.playingVideoTweet !== null">
 
     <div class="uk-card uk-card-default player-card">
       <div class="uk-card-media-top">
         <div class="video-wrapper">
           <PlayerMultiplexer
-              v-bind:url="playingVideoTweet['video_url']"
-              v-bind:video-type="playingVideoTweet['video_type']"
-              v-on:ended="onVideoEnded">
+              v-bind:url="sharedState.playingVideoTweet['video_url']"
+              v-bind:video-type="sharedState.playingVideoTweet['video_type']"
+              v-on:ended="onVideoEnded"
+              v-on:error="onError">
           </PlayerMultiplexer>
         </div>
       </div>
@@ -17,19 +18,19 @@
       <div class="uk-card-body">
         <div class="tweet-card-grid">
           <div class="tweet-card-thumbnail">
-            <img v-bind:src="playingVideoTweet['author_thumbnail_url']">
+            <img v-bind:src="sharedState.playingVideoTweet['author_thumbnail_url']">
           </div>
           <div>
             <p
                 class="retweeted-author"
-                v-show="playingVideoTweet['retweeted_author_name'] !== null">
-              {{ playingVideoTweet["retweeted_author_name"] }} がリツイート
+                v-show="sharedState.playingVideoTweet['retweeted_author_name'] !== null">
+              {{ sharedState.playingVideoTweet["retweeted_author_name"] }} がリツイート
             </p>
             <p class="author">
-              {{ playingVideoTweet["author_name"] }}
-              (@{{ playingVideoTweet["author_screen_name"] }})
+              {{ sharedState.playingVideoTweet["author_name"] }}
+              (@{{ sharedState.playingVideoTweet["author_screen_name"] }})
             </p>
-            <p>{{ playingVideoTweet["body"] }}</p>
+            <p>{{ sharedState.playingVideoTweet["body"] }}</p>
             <a v-bind:href="tweetUrl" target="_blank">Twitterで開く</a>
           </div>
         </div>
@@ -85,7 +86,12 @@ import Store from "../store.js";
 export default {
   name: "PlayerCard",
   data: function() {
-    return Store.state;
+    return {
+      privateState: {
+        errorHistory: []
+      },
+      sharedState: Store.state
+    }
   },
   components: {
     PlayerMultiplexer
@@ -93,13 +99,32 @@ export default {
   methods: {
     onVideoEnded: function() {
       Store.nextVideo();
+    },
+    onError: function() {
+      let current = new Date();
+      this.privateState.errorHistory.push(current);
+
+      // 過去1秒間のエラーが起きた時刻
+      let errorInSecond = this.privateState.errorHistory.filter(
+        time => current.getTime() - time.getTime() < 1000);
+
+      if( errorInSecond.length < 3 ) {
+        // エラーが1秒間に3回以内であれば次の動画に進む
+        Store.nextVideo();
+      } else {
+        // それ以上は次の動画に進まない
+        // ※連続してエラーが発生してどんどん動画が飛ばされる問題を防ぐため
+      }
+
+      this.privateState.errorHistory = errorInSecond;
+
     }
   },
   computed: {
     tweetUrl: function() {
       return "https://twitter.com/" +
-        this.playingVideoTweet["author_screen_name"] + "/status/" +
-        this.playingVideoTweet["tweet_id"];
+        this.sharedState.playingVideoTweet["author_screen_name"] + "/status/" +
+        this.sharedState.playingVideoTweet["tweet_id"];
     }
   }
 }

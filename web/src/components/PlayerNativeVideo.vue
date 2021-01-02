@@ -37,7 +37,7 @@ export default {
       this.$emit("ended");
     },
     onError: function() {
-      this.$emit("ended");
+      this.$emit("error");
     }
   }
 }

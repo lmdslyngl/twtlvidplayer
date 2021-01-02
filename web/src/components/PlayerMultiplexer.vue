@@ -3,17 +3,20 @@
     <PlayerNativeVideo
       v-bind:video-url="url"
       v-if="videoType === 1"
-      v-on:ended="onEnded">
+      v-on:ended="onEnded"
+      v-on:error="onError">
     </PlayerNativeVideo>
     <PlayerSoundCloud
       v-bind:url="url"
       v-if="videoType === 2"
-      v-on:ended="onEnded">
+      v-on:ended="onEnded"
+      v-on:error="onError">
     </PlayerSoundCloud>
     <PlayerYouTube
       v-bind:url="url"
       v-if="videoType === 3"
-      v-on:ended="onEnded">
+      v-on:ended="onEnded"
+      v-on:error="onError">
     </PlayerYouTube>
   </div>
 </template>
@@ -36,6 +39,9 @@ export default {
   methods: {
     onEnded: function() {
       this.$emit("ended");
+    },
+    onError: function() {
+      this.$emit("error");
     }
   },
   components: {

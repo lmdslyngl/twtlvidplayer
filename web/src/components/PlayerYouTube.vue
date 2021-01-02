@@ -61,7 +61,7 @@ export default {
       }
     },
     onError: function(evt) {
-      this.$emit("ended");
+      this.$emit("error");
     }
   },
   computed: {
