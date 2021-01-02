@@ -2,7 +2,7 @@
 import {API} from "./api.js";
 
 export default {
-  debug: true,
+  debug: false,
   state: {
     videoList: [],
     playingVideoTweet: null
