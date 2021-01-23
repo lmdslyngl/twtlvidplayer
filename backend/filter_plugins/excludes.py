@@ -22,7 +22,9 @@ class ExcludeByTwitterList:
 
     def __call__(self, tweet: dict) -> bool:
         exclude_user_ids = self.get_exclude_user_screen_names_cached()
-        return tweet["retweeted_author_screen_name"] not in exclude_user_ids
+        return \
+            tweet["author_screen_name"] not in exclude_user_ids \
+            and tweet["retweeted_author_screen_name"] not in exclude_user_ids
 
     def get_exclude_user_screen_names(self) -> List[int]:
         list_ids = ExcludeByTwitterList.get_list_ids(self.list_names)
