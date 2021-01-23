@@ -1,9 +1,11 @@
 
 from filter_plugins.excludes import \
     ExcludeByRetweetedAuthorScreenName, \
-    ExcludeByTwitterList
+    ExcludeByTwitterList, \
+    ExcludeByWords
 
 filters = [
     ExcludeByRetweetedAuthorScreenName([]),
-    ExcludeByTwitterList([])
+    ExcludeByTwitterList([]),
+    ExcludeByWords([])
 ]

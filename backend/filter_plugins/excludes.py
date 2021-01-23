@@ -51,3 +51,11 @@ class ExcludeByTwitterList:
                 pass
         return ids
 
+
+class ExcludeByWords:
+    def __init__(self, words: Iterable[str]) -> None:
+        self.exclude_words = set(words)
+
+    def __call__(self, tweet: dict) -> bool:
+        return all([exclude_word not in tweet["body"] for exclude_word in self.exclude_words])
+
