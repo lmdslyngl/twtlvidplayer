@@ -162,10 +162,11 @@ def main():
 
             logger.info("fetched {} videos.".format(len(video_list)))
 
-            time.sleep(10 * 60)
-
         except Exception as e:
             logger.exception(e)
+
+        finally:
+            time.sleep(10 * 60)
 
     return 0
 
