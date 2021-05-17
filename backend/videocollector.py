@@ -1,5 +1,5 @@
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import sys
 from datetime import datetime
 import re
@@ -15,37 +15,24 @@ def extract_video_tweets(twapi_search_response: dict) -> List[Video]:
     video_list = []
 
     for tweet in twapi_search_response:
-        video_url_candidates = [
-            get_video_url_from_tweet(tweet),
-            get_soundcloud_url_from_tweet(tweet),
-            get_youtube_url_from_tweet(tweet)
-        ]
-        video_types = [
-            VideoType.TWITTER,
-            VideoType.SOUNDCLOUD,
-            VideoType.YOUTUBE
-        ]
-
-        # Twitterビデオ，SoundCloud，Youtubeのいずれか1つのURLを選択
-        selected_video_url = None
-        for video_url, video_type in zip(video_url_candidates, video_types):
-            if video_url is not None:
-                selected_video_url = video_url
-                break
-
-        # ビデオのURLが無かったときはこのツイートを無視
-        if selected_video_url is None:
+        selected_video = select_video_url_from_tweet(tweet)
+        if selected_video is None:
             continue
+        else:
+            video_url = selected_video[0]
+            video_type = selected_video[1]
 
-        if "retweeted_status" in tweet:
-            # RTだった場合はRT元のツイートから情報を取得する
-            rt = tweet["retweeted_status"]
+        if "retweeted_status" in tweet or "quoted_status" in tweet:
+            if "retweeted_status" in tweet:
+                video_source_tweet = tweet["retweeted_status"]
+            elif "quoted_status" in tweet:
+                video_source_tweet = tweet["quoted_status"]
 
             author = User(
-                user_id=rt["user"]["id"],
-                name=rt["user"]["name"],
-                screen_name=rt["user"]["screen_name"],
-                thumbnail_url=rt["user"]["profile_image_url_https"])
+                user_id=video_source_tweet["user"]["id"],
+                name=video_source_tweet["user"]["name"],
+                screen_name=video_source_tweet["user"]["screen_name"],
+                thumbnail_url=video_source_tweet["user"]["profile_image_url_https"])
 
             retweeter = User(
                 user_id=tweet["user"]["id"],
@@ -57,9 +44,9 @@ def extract_video_tweets(twapi_search_response: dict) -> List[Video]:
                 tweet_id=tweet["id"],
                 author=author,
                 retweeted_user=retweeter,
-                body=rt["full_text"],
+                body=video_source_tweet["full_text"],
                 created_at=twitter_date_to_datetime(tweet["created_at"]),
-                video_url=selected_video_url,
+                video_url=video_url,
                 video_type=video_type)
 
         else:
@@ -75,12 +62,39 @@ def extract_video_tweets(twapi_search_response: dict) -> List[Video]:
                 retweeted_user=None,
                 body=tweet["full_text"],
                 created_at=twitter_date_to_datetime(tweet["created_at"]),
-                video_url=selected_video_url,
+                video_url=video_url,
                 video_type=video_type)
 
         video_list.append(vid)
 
     return video_list
+
+
+def select_video_url_from_tweet(tweet: dict) -> Optional[Tuple[str, VideoType]]:
+    # RT/引用ツイートの場合はそこから動画を選択
+    video_source_tweet = tweet
+    if "retweeted_status" in tweet:
+        video_source_tweet = tweet["retweeted_status"]
+    elif "quoted_status" in tweet:
+        video_source_tweet = tweet["quoted_status"]
+
+    video_url_candidates = [
+        get_video_url_from_tweet(video_source_tweet),
+        get_soundcloud_url_from_tweet(video_source_tweet),
+        get_youtube_url_from_tweet(video_source_tweet)
+    ]
+    video_types = [
+        VideoType.TWITTER,
+        VideoType.SOUNDCLOUD,
+        VideoType.YOUTUBE
+    ]
+
+    # Twitterビデオ，SoundCloud，Youtubeのいずれか1つのURLを選択
+    for video_url, video_type in zip(video_url_candidates, video_types):
+        if video_url is not None:
+            return video_url, video_type
+
+    return None
 
 
 def get_video_url_from_tweet(tweet: dict) -> Optional[str]:
