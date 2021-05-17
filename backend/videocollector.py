@@ -153,8 +153,6 @@ def main():
 
     while True:
         try:
-            time.sleep(10 * 60)
-
             tweets = get_home_timeline()
             video_list = extract_video_tweets(tweets)
 
@@ -163,6 +161,8 @@ def main():
                     video.insert()
 
             logger.info("fetched {} videos.".format(len(video_list)))
+
+            time.sleep(10 * 60)
 
         except Exception as e:
             logger.exception(e)
