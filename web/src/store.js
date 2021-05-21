@@ -26,14 +26,41 @@ export default {
       "last_playing_video_id",
       this.state.playingVideoTweet["tweet_id"]);
   },
+
+  _getCurrentVideoIndex() {
+    return this.state.videoList.findIndex((v) => {
+      return v["tweet_id"] === this.state.playingVideoTweet["tweet_id"];
+    });
+  },
+
+  prevVideo() {
+    if( this.debug ) {
+      console.log("prevVideo called");
+    }
+
+    let currentVideoIndex = this._getCurrentVideoIndex();
+    if( currentVideoIndex === 0 ) {
+      // 現在の動画が最初の動画だった場合は新しいものを読み込む
+      this.loadOlderVideo()
+        .then(() => {
+          currentVideoIndex = this._getCurrentVideoIndex();
+          if( currentVideoIndex === 0 ) {
+            // 動画を読み込んでもなおこれが最初の動画だった場合は何もしない
+          } else {
+            this.setPlayingVideoTweet(this.state.videoList[currentVideoIndex - 1]);
+          }
+        });
+    } else {
+      this.setPlayingVideoTweet(this.state.videoList[currentVideoIndex - 1]);
+    }
+  },
+
   nextVideo() {
     if( this.debug ) {
       console.log("nextVideo called");
     }
-    let currentVideoIndex = this.state.videoList.findIndex((v) => {
-      return v["tweet_id"] === this.state.playingVideoTweet["tweet_id"];
-    });
 
+    let currentVideoIndex = this._getCurrentVideoIndex();
     if( currentVideoIndex === this.state.videoList.length - 1 ) {
       // 現在の動画が最後の動画だった場合は新しいのを読み込む
       this.loadNewerVideo()

@@ -40,6 +40,7 @@ import VideoList from "./components/VideoList.vue";
 import PlayerCard from "./components/PlayerCard.vue";
 import {API} from "./api.js";
 import Store from "./store.js";
+import {Hotkey} from "./hotkey.js";
 
 export default {
   name: "App",
@@ -47,6 +48,8 @@ export default {
     return Store.state;
   },
   mounted: function() {
+    Hotkey.init();
+
     let lastPlayingVideoId = 0;
     let api = new API();
 
