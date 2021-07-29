@@ -139,6 +139,12 @@ class Video:
         con = TransactionManager.get_connection()
         con.execute(sql)
 
+        sql = """
+            CREATE INDEX idx_videolist_video_url ON videolist (video_url)
+        """
+        con = TransactionManager.get_connection()
+        con.execute(sql)
+
     @staticmethod
     def from_row(row: sqlite3.Row) -> "Video":
         author = User.from_row(row, prefix="author_")
@@ -294,6 +300,13 @@ class Video:
         con = TransactionManager.get_connection()
         cursor = con.execute(sql, placeholders)
         return reversed([Video.from_row(row) for row in cursor])
+
+    @staticmethod
+    def is_exists_from_video_url(video_url: str) -> bool:
+        sql = "SELECT 1 FROM videolist WHERE video_url = ? LIMIT 1"
+        con = TransactionManager.get_connection()
+        cursor = con.execute(sql, (video_url,))
+        return cursor.fetchone() is not None
 
 
 class Config:

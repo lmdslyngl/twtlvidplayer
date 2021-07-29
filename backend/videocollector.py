@@ -28,6 +28,11 @@ def extract_video_tweets(twapi_search_response: dict) -> List[Video]:
             elif "quoted_status" in tweet:
                 video_source_tweet = tweet["quoted_status"]
 
+            if Video.is_exists_from_video_url(video_url):
+                # RTで同じ動画が何度も表示されないように，
+                # すでにDB内に存在する動画は保存しない
+                continue
+
             author = User(
                 user_id=video_source_tweet["user"]["id"],
                 name=video_source_tweet["user"]["name"],
