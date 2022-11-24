@@ -1,4 +1,4 @@
-FROM centos:8
+FROM almalinux:8
 COPY ./backend /app/backend
 COPY ./docker/twtlvidplayer-collector/docker-entrypoint.sh /app/backend
 
