@@ -98,7 +98,7 @@ export default {
   },
   methods: {
     onVideoEnded: function() {
-      Store.nextVideo();
+      Store.prevVideo();
     },
     onError: function() {
       let current = new Date();

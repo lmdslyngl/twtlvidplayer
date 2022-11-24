@@ -50,28 +50,13 @@ export default {
   mounted: function() {
     Hotkey.init();
 
-    let lastPlayingVideoId = 0;
     let api = new API();
 
-    api.getConfig("last_playing_video_id")
+    // 最新の20件の動画を取得し，最新の動画を選択する
+    api.getVideoListUntil(null, 20)
       .then((response) => {
-        lastPlayingVideoId = response["value"];
-      }).then(() => {
-        return api.getVideoListSince(lastPlayingVideoId, 20);
-      }).then((response) => {
         Store.setVideoList(response);
-
-        // 直近再生した動画を探す
-        let lastPlayingVideo = response.find((x) => {
-          return x["tweet_id"] === lastPlayingVideoId;
-        });
-
-        if( lastPlayingVideo === undefined ) {
-          // 直近再生した動画が見つからなかった場合は，リストの最初の動画を選択
-          Store.setPlayingVideoTweet(response[0]);
-        } else {
-          Store.setPlayingVideoTweet(lastPlayingVideo);
-        }
+        Store.setPlayingVideoTweet(response[response.length - 1]);
       });
   },
   methods: {
